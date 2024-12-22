@@ -8,8 +8,6 @@ key <- "INSERT KEY HERE"
 url <- paste0("https://api.the-odds-api.com/v4/historical/sports/icehockey_nhl/odds?regions=us&markets=totals&oddsFormat=american&apiKey=",key,"&date=2024-12-19T12:00:00Z")
 response <- GET(url)              
 
-status_code(response)
-
 data_parsed <- content(response, as = "parsed")
 
 main_timestamp <- data_parsed$timestamp

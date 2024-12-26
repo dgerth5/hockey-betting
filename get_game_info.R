@@ -67,5 +67,5 @@ get_data_from_url <- function(url) {
   Sys.sleep(1)
 }
 
-hockey_totals_22_23 <- map_dfr(urls, get_data_from_url)
+hockey_totals_21_22_23 <- map_dfr(urls, get_data_from_url)
 

@@ -3,14 +3,16 @@ library(lubridate)
 library(tidyverse)
 library(httr)
 library(jsonlite)
+library(hockeyR)
 library(purrr)
+library(tidyverse)
 
 games21 <- get_game_ids(2021)
 games22 <- get_game_ids(2022)
 games23 <- get_game_ids(2023)
 games24 <- get_game_ids(2024)
 
-master_games <- bind_rows(games21, games22, games23)
+master_games <- bind_rows(games22, games23)
 master_games$iso_game_time <- format(as.POSIXct(paste0(master_games$date, master_games$game_time),
                                                 format = "%Y-%m-%d %I:%M %p", 
                                                 tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ") # time format required for API
@@ -26,34 +28,30 @@ url_formula <- function(key, datetime){
 }
 
 key <- Sys.getenv("API_KEY")
-print(key)
 urls <- url_formula(key, unique_iso_gt)
 
-get_data_from_url <- function(url) {
+get_odds_data <- function(url) {
   response <- GET(url)
   data_parsed <- content(response, as = "parsed")
-  print(response[["headers"]][["x-requests-remaining"]])
-  
-  if (is.null(data_parsed$data)) return(NULL)
   
   main_timestamp <- data_parsed$timestamp
   games <- data_parsed$data
   
-  map_dfr(games, function(game) {
-    # iterating across book makers
+  final_df <- map_dfr(games, function(game) {
+    # get all bookmakers
     map_dfr(game$bookmakers, function(bookmaker) {
-      
-      # extract only totals
+      # just totals
       totals_market <- keep(bookmaker$markets, ~ .x$key == "totals")
       if (length(totals_market) == 0) return(NULL)
       
       # get outcomes
       outcomes <- totals_market[[1]]$outcomes
-      
-      # over/Under
       over_info <- keep(outcomes, ~ .x$name == "Over")[[1]]
       under_info <- keep(outcomes, ~ .x$name == "Under")[[1]]
       
+      if (is.null(over_info) || is.null(under_info)) return(NULL)
+      
+      # create df 
       data.frame(
         timestamp = main_timestamp,
         home_team = game$home_team,
@@ -66,8 +64,10 @@ get_data_from_url <- function(url) {
       )
     })
   })
-  Sys.sleep(1)
+  
+  return(final_df)
 }
 
-hockey_totals_21_22_23 <- map_dfr(urls, get_data_from_url)
+hockey_totals_22_23 <- map_dfr(urls, get_odds_data)
 
+write_csv(hockey_totals_22_23, "hockey_lines_22-23.csv")

@@ -33,6 +33,7 @@ urls <- url_formula(key, unique_iso_gt)
 get_odds_data <- function(url) {
   response <- GET(url)
   data_parsed <- content(response, as = "parsed")
+  print(response[["headers"]][["x-requests-remaining"]])
   
   main_timestamp <- data_parsed$timestamp
   games <- data_parsed$data

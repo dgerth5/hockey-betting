@@ -25,6 +25,8 @@ url_formula <- function(key, datetime){
   url <- paste0("https://api.the-odds-api.com/v4/historical/sports/icehockey_nhl/odds?regions=us&markets=totals&oddsFormat=american&apiKey=",key,"&date=", datetime)
 }
 
+key <- Sys.getenv("API_KEY")
+print(key)
 urls <- url_formula(key, unique_iso_gt)
 
 get_data_from_url <- function(url) {

@@ -1,4 +1,3 @@
-library(hockeyR)
 library(lubridate)
 library(tidyverse)
 library(httr)

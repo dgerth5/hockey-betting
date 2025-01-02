@@ -7,10 +7,9 @@ library(hockeyR)
 library(purrr)
 library(tidyverse)
 
-games21 <- get_game_ids(2021)
 games22 <- get_game_ids(2022)
 games23 <- get_game_ids(2023)
-games24 <- get_game_ids(2024)
+#games24 <- get_game_ids(2024)
 
 master_games <- bind_rows(games22, games23)
 master_games$iso_game_time <- format(as.POSIXct(paste0(master_games$date, master_games$game_time),
